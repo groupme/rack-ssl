@@ -16,8 +16,9 @@ module Rack
       @hsts = {} if @hsts.nil? || @hsts == true
       @hsts = self.class.default_hsts_options.merge(@hsts) if @hsts
 
-      @exclude = options[:exclude]
-      @host    = options[:host]
+      @exclude   = options[:exclude]
+      @host      = options[:host]
+      @temporary = options[:temporary]
     end
 
     def call(env)
@@ -50,10 +51,11 @@ module Rack
         url        = URI(req.url)
         url.scheme = "https"
         url.host   = @host if @host
+        status     = @temporary ? 302 : 301
         headers    = hsts_headers.merge('Content-Type' => 'text/html',
                                         'Location'     => url.to_s)
 
-        [301, headers, []]
+        [status, headers, []]
       end
 
       # http://tools.ietf.org/html/draft-hodges-strict-transport-sec-02

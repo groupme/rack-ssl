@@ -124,6 +124,12 @@ class TestSSL < Test::Unit::TestCase
       last_response.headers['Location']
   end
 
+  def test_temporary_redirect
+    self.app = Rack::SSL.new(default_app, :temporary => true)
+    get "http://example.org/"
+    assert_equal 302, last_response.status
+  end
+
   def test_redirect_to_secure_host_when_on_subdomain
     self.app = Rack::SSL.new(default_app, :host => "ssl.example.org")
     get "http://ssl.example.org/path?key=value"
